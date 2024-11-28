@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -20,7 +20,7 @@ with app.app_context():
     db.create_all()
 
 
-@app.route('/index')
+@app.route('/')
 def index():
     return render_template('index.html')
 
@@ -32,45 +32,42 @@ def register():
         username = request.form.get('login')
         password = request.form.get('password')
 
-        # CRUD:
-        # C - Create
-        # R - Read
-        # U - Update
-        # D - Delete
-
-        # Создание данных
         user = User(email=email, login=username, password=password)
 
         db.session.add(user)
         db.session.commit()
-    return render_template('register.html')
+    return render_template('auth.html')
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['POST'])
 def login():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
+    email = request.form.get('email')
+    password = request.form.get('password')
 
-        # Чтение данных
-        user = User.query.filter_by(email=email, password=password).first()
-        if user:
-            print(f'Успешная авторизация! {user.email}, {user.password}')
-            return render_template('index.html')
+    user = User.query.filter_by(email=email, password=password).first()
+    if user:
+        print(f'Успешная авторизация! {user.email}, {user.password}')
+        return redirect(url_for('index'))
 
-        # Обновление данных
-        # user.email = 'admin@gmail.com'
-        # db.session.add(user)
-        # db.session.commit()
-
-        # Удаление данных
-        # db.session.delete(user)
-        # db.session.commit()
-
-        print('Ошибка авторизации!')
-
-    return render_template('login.html')
+    print('Ошибка авторизации!')
+    return redirect(url_for('register'))
 
 
 if __name__ == '__main__':
     app.run()
+
+    # MVC:
+    # M - Model (models.py)
+    # V - Views (templates)
+    # C - Controller (controller.py)
+
+    # Обязательно:
+    # main.py (запуск проект)
+    # errors.py (обработку ошибок. 404)
+    # mail.py (работа с почтой)
+    # business_logic(.py?), так как это может быть директорию с кучей файлов
+    # бизнес логики
+
+    # Не обязательно:
+    # admin.py (админ-панель сайта)
+    # config.py (секреты)
