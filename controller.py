@@ -7,7 +7,12 @@ from models import User
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    users = User.query.all()
+    title = 'Главная страница'
+    return render_template('index.html',
+                           persons=users,
+                           title=title,
+                           User=User)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -17,7 +22,7 @@ def register():
         username = request.form.get('login')
         password = request.form.get('password')
 
-        if check_auth_data(login, password):
+        if check_auth_data(username, password):
             user = User(email=email, login=username, password=password)
 
             db.session.add(user)
