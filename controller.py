@@ -1,4 +1,5 @@
 from flask import render_template, request, redirect, url_for
+from flask_login import login_required, login_user, logout_user
 
 from app import app, db
 from business_logic.check_data import check_auth_data
@@ -27,6 +28,7 @@ def register():
 
             db.session.add(user)
             db.session.commit()
+            login_user(user)
     return render_template('auth.html')
 
 
@@ -37,8 +39,28 @@ def login():
 
     user = User.query.filter_by(email=email, password=password).first()
     if user:
-        print(f'Успешная авторизация! {user.email}, {user.password}')
+        login_user(user)
         return redirect(url_for('index'))
 
     print('Ошибка авторизации!')
     return redirect(url_for('register'))
+
+
+@app.route('/admin')
+@login_required
+def admin():
+    return render_template('admin.html')
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+
+@app.after_request
+def redirect_to_sign(response):
+    if response.status_code == 401:
+        return redirect(url_for('register'))
+    return response

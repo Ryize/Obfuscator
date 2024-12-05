@@ -5,6 +5,12 @@
 {% endblock %}
 
 {% block content %}
+
+    {% if current_user.is_authenticated %}
+        <h1>Приветствую {{ current_user.login }}, рады тебя видеть!</h1>
+        {% else %}
+        <h1>Вы не авторизованы!</h1>
+    {% endif %}
     <p>{{ User.query.filter_by(login='Ryize').first().login }}</p>
 
     <ul>
