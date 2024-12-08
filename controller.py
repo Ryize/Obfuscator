@@ -4,6 +4,7 @@ from flask_login import login_required, login_user, logout_user
 from app import app, db
 from business_logic.check_data import check_auth_data
 from models import User
+from mail import send_email
 
 
 @app.route('/')
