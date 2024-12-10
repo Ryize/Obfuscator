@@ -1,9 +1,12 @@
+import random
+import string
+
 from flask import render_template, request, redirect, url_for
 from flask_login import login_required, login_user, logout_user
 
 from app import app, db
 from business_logic.check_data import check_auth_data
-from models import User
+from models import User, EmailConfirm
 from mail import send_email
 
 
@@ -17,6 +20,18 @@ def index():
                            User=User)
 
 
+@app.route('/email-confirm/<code>')
+def email_confirm(code):
+    user_confirm = EmailConfirm.query.filter_by(code=code).first()
+    if user_confirm:
+        user = User.query.filter_by(login=user_confirm.login).first()
+        user.email_confirm = True
+        db.session.add(user)
+        db.session.delete(user_confirm)
+        db.session.commit()
+    return redirect(url_for('register'))
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -26,10 +41,19 @@ def register():
 
         if check_auth_data(username, password):
             user = User(email=email, login=username, password=password)
+            code = ''.join(
+                [random.choice(string.ascii_letters + string.digits) for i in
+                 range(32)])
+            user_confirm = EmailConfirm(login=username, code=code)
 
             db.session.add(user)
+            db.session.add(user_confirm)
             db.session.commit()
-            login_user(user)
+
+            message = f'Ссылка для подтверждения почты: http://127.0.0.1:5000/email-confirm/{code}'
+
+            send_email(message, email, 'Подтверждение почты')
+
     return render_template('auth.html')
 
 
@@ -39,7 +63,7 @@ def login():
     password = request.form.get('password')
 
     user = User.query.filter_by(email=email, password=password).first()
-    if user:
+    if user and user.email_confirm:
         login_user(user)
         return redirect(url_for('index'))
 

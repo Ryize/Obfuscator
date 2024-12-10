@@ -24,6 +24,3 @@ def send_email(message: str, to: str, subject: str):
     server.sendmail(EMAIL_LOGIN, msg['To'], msg.as_string())
 
     server.quit()
-
-
-send_email('Привет, готов к уроку?', 'ptimohin@bk.ru', 'Занятие')
