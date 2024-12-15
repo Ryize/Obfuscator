@@ -34,6 +34,7 @@ def email_confirm(code):
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    1/0
     if request.method == 'POST':
         email = request.form.get('email')
         username = request.form.get('login')
