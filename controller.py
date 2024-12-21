@@ -1,8 +1,8 @@
 import random
 import string
 
-from flask import render_template, request, redirect, url_for
-from flask_login import login_required, login_user, logout_user
+from flask import render_template, request, redirect, url_for, session
+from flask_login import login_required, login_user, logout_user, current_user
 
 from app import app, db
 from business_logic.check_data import check_auth_data
@@ -29,12 +29,12 @@ def email_confirm(code):
         db.session.add(user)
         db.session.delete(user_confirm)
         db.session.commit()
+        login_user(user)
     return redirect(url_for('register'))
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    1/0
     if request.method == 'POST':
         email = request.form.get('email')
         username = request.form.get('login')
@@ -66,7 +66,7 @@ def login():
     user = User.query.filter_by(email=email, password=password).first()
     if user and user.email_confirm:
         login_user(user)
-        return redirect(url_for('index'))
+        return redirect(session.get('url'))
 
     print('Ошибка авторизации!')
     return redirect(url_for('register'))
@@ -88,5 +88,7 @@ def logout():
 @app.after_request
 def redirect_to_sign(response):
     if response.status_code == 401:
+        session['url'] = request.path
+        # print(response.location)
         return redirect(url_for('register'))
     return response
