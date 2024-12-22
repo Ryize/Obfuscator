@@ -1,7 +1,7 @@
 import random
 import string
 
-from flask import render_template, request, redirect, url_for, session
+from flask import render_template, request, redirect, url_for, session, make_response
 from flask_login import login_required, login_user, logout_user, current_user
 
 from app import app, db
@@ -14,10 +14,15 @@ from mail import send_email
 def index():
     users = User.query.all()
     title = 'Главная страница'
-    return render_template('index.html',
-                           persons=users,
-                           title=title,
-                           User=User)
+    res = make_response(
+        render_template('index.html',
+                        persons=users,
+                        title=title,
+                        User=User)
+    )
+    res.set_cookie('username', 'John', max_age=60*60*24*3)
+    # res.delete_cookie('username')
+    return res
 
 
 @app.route('/email-confirm/<code>')
@@ -75,6 +80,7 @@ def login():
 @app.route('/admin')
 @login_required
 def admin():
+    print(request.cookies.get('username'))
     return render_template('admin.html')
 
 
