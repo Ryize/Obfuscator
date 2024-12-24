@@ -1,7 +1,8 @@
 import random
 import string
 
-from flask import render_template, request, redirect, url_for, session, make_response
+from flask import render_template, request, redirect, url_for, session, \
+    make_response, flash
 from flask_login import login_required, login_user, logout_user, current_user
 
 from app import app, db
@@ -14,6 +15,11 @@ from mail import send_email
 def index():
     users = User.query.all()
     title = 'Главная страница'
+    # flash("Успешная регистрация", 'success')
+    # flash("All Normal", 'info')
+    # flash("Not So OK", 'error')
+    # flash("So So", 'warning')
+    flash({'title': "Регистрация", 'message': "Ошибка регистрации!"}, 'error')
     res = make_response(
         render_template('index.html',
                         persons=users,

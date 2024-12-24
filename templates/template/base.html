@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title_head %}Название{% endblock %}</title>
-{% block style %}
-{% endblock %}
+    {% block style %}
+    {% endblock %}
+    {{ toastr.include_jquery() }}
+    {{ toastr.include_toastr_css() }}
+    {{ toastr.message() }}
 </head>
 
 <body>
-
+{{ toastr.include_toastr_js() }}
 <h1>{% block title_body %}Заголовок...{% endblock %}</h1>
 
 {% block content %}
