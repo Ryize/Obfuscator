@@ -2,8 +2,9 @@ import random
 import string
 
 from flask import render_template, request, redirect, url_for, session, \
-    make_response, flash
+    make_response, flash, g
 from flask_login import login_required, login_user, logout_user, current_user
+from flask.wrappers import Response
 
 from app import app, db
 from business_logic.check_data import check_auth_data
@@ -15,10 +16,6 @@ from mail import send_email
 def index():
     users = User.query.all()
     title = 'Главная страница'
-    # flash("Успешная регистрация", 'success')
-    # flash("All Normal", 'info')
-    # flash("Not So OK", 'error')
-    # flash("So So", 'warning')
     flash({'title': "Регистрация", 'message': "Ошибка регистрации!"}, 'error')
     res = make_response(
         render_template('index.html',
@@ -27,7 +24,6 @@ def index():
                         User=User)
     )
     res.set_cookie('username', 'John', max_age=60*60*24*3)
-    # res.delete_cookie('username')
     return res
 
 
@@ -98,7 +94,7 @@ def logout():
 
 
 @app.after_request
-def redirect_to_sign(response):
+def redirect_to_sign(response: Response):
     if response.status_code == 401:
         session['url'] = request.path
         # print(response.location)
