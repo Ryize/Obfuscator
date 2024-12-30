@@ -2,7 +2,7 @@ from datetime import datetime
 
 from flask_login import UserMixin
 
-from app import db, app, manager
+from app import app, db, manager
 
 
 class EmailConfirm(db.Model):
